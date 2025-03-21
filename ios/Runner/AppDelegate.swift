@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import GoggleMaps
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {

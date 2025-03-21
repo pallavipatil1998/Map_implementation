@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'dart:async';
+
 
 void main() {
   runApp(const MyApp());
@@ -111,16 +113,16 @@ class _HomePageState extends State<HomePage> {
               SnackBar(content: Text('You\'ve denied this permission forever, therfore you wont be able to access this particular feature!!')));
         } else {
           //permission granted!!
-          getCurrentLocation();
-          // getContinuousLocation();
+          // getCurrentLocation();
+          getContinuousLocation();
         }
 
 
 
       } else {
         // permission already given
-        getCurrentLocation();
-        // getContinuousLocation();
+        // getCurrentLocation();
+        getContinuousLocation();
       }
     }
   }
@@ -131,6 +133,19 @@ class _HomePageState extends State<HomePage> {
 
     print("Location: ${pos.latitude}, ${pos.longitude}");
 
+  }
+
+
+  void getContinuousLocation(){
+
+    final LocationSettings locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.high,
+      timeLimit: Duration(seconds: 10),
+    );
+    StreamSubscription<Position> positionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+            (Position? position) {
+          print(position == null ? 'Unknown' : '${position.latitude.toString()}, ${position.longitude.toString()}');
+        });
   }
 
 
