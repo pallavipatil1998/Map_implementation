@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 void main() {
@@ -33,12 +34,21 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   var initPosition= CameraPosition(target: LatLng(21.0289402,75.539315),zoom:15 );
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    checkBeforeGettingLocation();
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Map"),
       ),
       body: GoogleMap(
+        onTap: (location){
+          print("Location: ${location.latitude}, ${location.longitude}");
+        },
           initialCameraPosition: initPosition,
         markers: {
              Marker(
@@ -77,4 +87,52 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+
+  void checkBeforeGettingLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please Enable Location Services!!')));
+    }
+    else {
+      // GPS is ON
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Please allow app to request your current location')));
+        } else if (permission == LocationPermission.deniedForever){
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('You\'ve denied this permission forever, therfore you wont be able to access this particular feature!!')));
+        } else {
+          //permission granted!!
+          getCurrentLocation();
+          // getContinuousLocation();
+        }
+
+
+
+      } else {
+        // permission already given
+        getCurrentLocation();
+        // getContinuousLocation();
+      }
+    }
+  }
+
+  void getCurrentLocation() async{
+
+    var pos = await Geolocator.getCurrentPosition();
+
+    print("Location: ${pos.latitude}, ${pos.longitude}");
+
+  }
+
+
+
 }
